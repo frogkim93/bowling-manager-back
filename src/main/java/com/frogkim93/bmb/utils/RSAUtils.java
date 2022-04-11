@@ -37,10 +37,6 @@ public class RSAUtils {
 		}
 	}
 	
-	public String getPublicKey() {
-		return Base64.getEncoder().encodeToString(publicKey.getEncoded());
-	}
-	
 	public String encode(String text) {
 		try {
 			Cipher cipher = Cipher.getInstance("RSA");
@@ -69,5 +65,9 @@ public class RSAUtils {
 		}
 		
 		return null;
+	}
+	
+	public String getPublicKey() {
+		return Base64.getEncoder().encodeToString(publicKey.getEncoded());
 	}
 }

@@ -12,7 +12,5 @@ public class UtilsConfig {
 	private void setRSAUtils() {
 		RSAUtils rsaUtils = RSAUtils.getInstance();
 		rsaUtils.createKeyPair();
-		
-		rsaUtils.getPublicKey();
 	}
 }
