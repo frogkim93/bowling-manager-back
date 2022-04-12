@@ -1,6 +1,6 @@
 package com.frogkim93.bmb.dto.member;
 
-import com.frogkim93.bmb.constants.member.Gender;
+import com.frogkim93.bmb.constants.Gender;
 
 import lombok.Getter;
 

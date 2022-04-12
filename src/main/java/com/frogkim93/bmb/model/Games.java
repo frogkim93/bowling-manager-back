@@ -7,8 +7,10 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
-import com.frogkim93.bmb.constants.Gender;
+import com.frogkim93.bmb.constants.GameType;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,19 +21,23 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity(name = "members")
-public class Members {
+@Entity(name = "games")
+public class Games {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int seq;
 	
-	@ManyToOne(targetEntity = Accounts.class)
-	@JoinColumn(name = "masterSeq")
-	private Accounts master;
+	@ManyToOne(targetEntity = Members.class)
+	@JoinColumn(name = "memberSeq")
+	private Members member;
 	
 	@Column(nullable = false)
-	private String name;
+	private int teamIndex;
+	
+	@Temporal(TemporalType.DATE)
+	@Column(nullable = false)
+	private int gameDate;
 	
 	@Column(nullable = false)
-	private Gender gender;
+	private GameType gameType;
 }
