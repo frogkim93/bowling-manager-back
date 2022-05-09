@@ -1,16 +1,12 @@
 package com.frogkim93.bmb.model;
 
-import java.util.Date;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-
-import com.frogkim93.bmb.constants.GameType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,16 +17,20 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity(name = "games")
-public class Games {
+@Entity(name = "teammappings")
+public class TeamMappings {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int seq;
 	
-	@Temporal(TemporalType.DATE)
-	@Column(nullable = false)
-	private Date gameDate;
+	@ManyToOne(targetEntity = Games.class)
+	@JoinColumn(name = "gameSeq")
+	private Games game;
+	
+	@ManyToOne(targetEntity = Members.class)
+	@JoinColumn(name = "memberSeq")
+	private Members member;
 	
 	@Column(nullable = false)
-	private GameType gameType;
+	private int teamIndex;
 }
