@@ -7,8 +7,8 @@ import java.util.List;
 import com.frogkim93.bmb.constants.GameType;
 import com.frogkim93.bmb.model.GameScores;
 import com.frogkim93.bmb.model.Games;
-import com.frogkim93.bmb.model.Members;
 import com.frogkim93.bmb.model.TeamMappings;
+import com.frogkim93.bmb.model.Teams;
 import com.frogkim93.bmb.model.view.VGameScoreBoard;
 
 import lombok.AllArgsConstructor;
@@ -23,6 +23,7 @@ public class GameDto {
 	private int seq;
 	private Date gameDate;
 	private GameType gameType;
+	private int teamSeq;
 	private List<Team> teamList;
 	
 	@Builder
@@ -56,6 +57,7 @@ public class GameDto {
 	public Games convertToEntity() {
 		return Games.builder()
 			.seq(seq)
+			.team(Teams.builder().seq(teamSeq).build())
 			.gameDate(gameDate)
 			.gameType(gameType)
 			.build();
@@ -72,13 +74,13 @@ public class GameDto {
 	@NoArgsConstructor
 	@Getter
 	public static class Member {
-		private int seq;
+		private int teamMappingSeq;
 		private String name;
 		private List<Integer> scoreList;
-		
+
 		@Builder
 		private Member(VGameScoreBoard vGameScoreBoard) {
-			seq = vGameScoreBoard.getMember().getSeq();
+			teamMappingSeq = vGameScoreBoard.getMember().getSeq();
 			name = vGameScoreBoard.getMember().getName();
 			scoreList = new ArrayList<Integer>();
 			
@@ -88,19 +90,11 @@ public class GameDto {
 				scoreList.add(Integer.parseInt(scoreTextList[i]));
 			}
 		}
-		
-		public TeamMappings convertToTeamMappingEntity(int mappingSeq, int gameSeq, int teamIndex) {
-			return TeamMappings.builder()
-				.seq(mappingSeq)
-				.game(Games.builder().seq(gameSeq).build())
-				.member(Members.builder().seq(seq).build())
-				.teamIndex(teamIndex)
-				.build();
-		}
-		
-		public GameScores convertToGameScoreEntity(int mappingSeq, int gameIndex) {
+
+		public GameScores convertToGameScoreEntity(Games gameEntity, int gameIndex) {
 			return GameScores.builder()
-				.team(TeamMappings.builder().seq(mappingSeq).build())
+				.game(gameEntity)
+				.teamMapping(TeamMappings.builder().seq(teamMappingSeq).build())
 				.gameIndex(gameIndex)
 				.score(scoreList.get(gameIndex))
 				.build();

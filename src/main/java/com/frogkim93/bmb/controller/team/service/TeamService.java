@@ -1,6 +1,7 @@
 package com.frogkim93.bmb.controller.team.service;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
@@ -12,12 +13,11 @@ import org.springframework.stereotype.Service;
 
 import com.frogkim93.bmb.dto.member.MemberDto;
 import com.frogkim93.bmb.dto.team.TeamDto;
-import com.frogkim93.bmb.model.Accounts;
 import com.frogkim93.bmb.model.Members;
+import com.frogkim93.bmb.model.TeamMappings;
 import com.frogkim93.bmb.model.Teams;
-import com.frogkim93.bmb.model.view.VTeamWithMaster;
+import com.frogkim93.bmb.repository.TeamMappingsRepository;
 import com.frogkim93.bmb.repository.TeamsRepository;
-import com.frogkim93.bmb.repository.view.VTeamWithMasterRepository;
 
 @Service
 public class TeamService {
@@ -26,23 +26,28 @@ public class TeamService {
 
 	@Autowired
 	private TeamsRepository teamsRepository;
-
+	
 	@Autowired
-	private VTeamWithMasterRepository vTeamWithMasterRepository;
+	private TeamMappingsRepository teamMappingsRepository;
 
 	@Transactional
-	public boolean createTeam(List<TeamDto> teamListDto) {
+	public void createTeam(List<TeamDto> teamListDto) {
 		try {
-			teamsRepository.deleteAll();
-			
+			Teams teamEntity = Teams.builder()
+				.regTime(new Date())
+				.build();
+
+			teamsRepository.saveAndFlush(teamEntity);
+
 			for (TeamDto team: teamListDto) {
 				for (MemberDto member: team.getMemberList()) {
-					Teams entity = Teams.builder()
+					TeamMappings teamMappingEntity = TeamMappings.builder()
+						.team(teamEntity)
 						.member(Members.builder().seq(member.getSeq()).build())
 						.teamIndex(team.getTeamIndex())
 						.build();
-				
-					teamsRepository.saveAndFlush(entity);
+					
+					teamMappingsRepository.saveAndFlush(teamMappingEntity);
 				}
 			}
 		} catch (Exception e) {
@@ -50,18 +55,18 @@ public class TeamService {
 
 			throw new RuntimeException();
 		}
-
-		return true;
 	}
 
 	public List<TeamDto> getTeamByMaster(int masterSeq) {
-		List<VTeamWithMaster> foundTeamList = vTeamWithMasterRepository.findByMasterOrderByTeamIndexAsc(Accounts.builder().seq(masterSeq).build());
+		Teams foundTeam = teamsRepository.findTop1ByOrderByRegTime();
 		List<TeamDto> teamList = new ArrayList<TeamDto>();
 
-		for (VTeamWithMaster vEntity: foundTeamList) {
-			if (teamList.size() == 0 || teamList.get(teamList.size() - 1).getTeamIndex() != vEntity.getTeamIndex()) {
-				TeamDto team = TeamDto.builder()
-					.teamIndex(vEntity.getTeamIndex())
+		for (TeamMappings teamMapping: foundTeam.getTeamMappingList()) {
+			TeamDto team = getTeamByIndex(teamList, teamMapping.getTeamIndex());
+
+			if (team == null) {
+				team = TeamDto.builder()
+					.teamIndex(teamMapping.getTeamIndex())
 					.memberList(new ArrayList<MemberDto>())
 					.build();
 				
@@ -69,12 +74,26 @@ public class TeamService {
 			}
 
 			MemberDto member = MemberDto.builder()
-				.entity(vEntity.getMember())
+				.entity(teamMapping.getMember())
 				.build();
-			
-			teamList.get(teamList.size() - 1).getMemberList().add(member);
+
+			team.getMemberList().add(member);
 		}
 
 		return teamList;
+	}
+
+	private TeamDto getTeamByIndex(List<TeamDto> teamList, int index) {
+		if (teamList.size() == 0) {
+			return null;
+		}
+		
+		for (TeamDto team: teamList) {
+			if (team.getTeamIndex() == index) {
+				return team;
+			}
+		}
+		
+		return null;
 	}
 }

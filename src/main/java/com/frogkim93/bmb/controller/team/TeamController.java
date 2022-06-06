@@ -20,8 +20,8 @@ public class TeamController {
 	private TeamService teamService;
 
 	@PostMapping
-	private boolean createTeam(@RequestBody List<TeamDto> teamListDto) {
-		return teamService.createTeam(teamListDto);
+	private void createTeam(@RequestBody List<TeamDto> teamListDto) {
+		teamService.createTeam(teamListDto);
 	}
 
 	@GetMapping(value = "/byMaster/{masterSeq}")

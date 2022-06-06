@@ -23,9 +23,9 @@ public class TeamMappings {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int seq;
 	
-	@ManyToOne(targetEntity = Games.class)
-	@JoinColumn(name = "gameSeq")
-	private Games game;
+	@ManyToOne(targetEntity = Teams.class)
+	@JoinColumn(name = "teamSeq")
+	private Teams team;
 	
 	@ManyToOne(targetEntity = Members.class)
 	@JoinColumn(name = "memberSeq")

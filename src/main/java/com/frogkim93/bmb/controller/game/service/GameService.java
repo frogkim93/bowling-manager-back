@@ -2,7 +2,6 @@ package com.frogkim93.bmb.controller.game.service;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,37 +46,15 @@ public class GameService {
 	}
 	
 	public void createGame(GameDto gameInformation) {
-		if (gameInformation.getSeq() != 0) {
-			gamesRepository.deleteById(gameInformation.getSeq());
-		}
-		
-		Games gameEntity = gamesRepository.saveAndFlush(gameInformation.convertToEntity());
-		
-		int teamIndex = 0;
+		Games gameEntity = gameInformation.convertToEntity();
+		gameEntity = gamesRepository.saveAndFlush(gameEntity);
 		
 		for (GameDto.Team team: gameInformation.getTeamList()) {
 			for (GameDto.Member member: team.getMemberList()) {
-				TeamMappings teamMapping = teamMappingsRepository.saveAndFlush(member.convertToTeamMappingEntity(0, gameEntity.getSeq(), teamIndex));
-				
 				for (int i = 0; i < member.getScoreList().size(); i++) {
-					gameScoresRepository.saveAndFlush(member.convertToGameScoreEntity(teamMapping.getSeq(), i));
+					gameScoresRepository.saveAndFlush(member.convertToGameScoreEntity(gameEntity, i));
 				}
 			}
-			
-			teamIndex++;
 		}
-	}
-	
-	public List<VMemberPreMonthAvg> test() {
-		Date today = new Date();
-		List<VMemberPreMonthAvg> list = gameScoreBoardRepository.findByPreMonthAvg(today, 3);
-		List<VMemberPreMonthAvg> result = new ArrayList<VMemberPreMonthAvg>();
-		
-		for (VMemberPreMonthAvg object: list) {
-			System.out.println(object.getMemberSeq()); 
-			System.out.println(object.getPreMonthAvg()); 
-		}
-		
-		return result;
 	}
 }

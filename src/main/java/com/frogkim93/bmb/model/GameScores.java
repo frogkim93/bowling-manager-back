@@ -23,9 +23,13 @@ public class GameScores {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int seq;
 	
+	@ManyToOne(targetEntity = Games.class)
+	@JoinColumn(name = "gameSeq")
+	private Games game;
+	
 	@ManyToOne(targetEntity = TeamMappings.class)
 	@JoinColumn(name = "teamMappingSeq")
-	private TeamMappings team;
+	private TeamMappings teamMapping;
 	
 	@Column(nullable = false)
 	private int gameIndex;
