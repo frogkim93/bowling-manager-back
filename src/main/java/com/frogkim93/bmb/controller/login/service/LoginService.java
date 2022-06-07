@@ -7,7 +7,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
 
+import com.frogkim93.bmb.dto.login.AccountDto;
 import com.frogkim93.bmb.dto.login.LoginDto;
+import com.frogkim93.bmb.dto.login.PublicKeyDto;
 import com.frogkim93.bmb.model.Accounts;
 import com.frogkim93.bmb.repository.AccountsRepository;
 import com.frogkim93.bmb.utils.RSAUtils;
@@ -16,47 +18,42 @@ import com.frogkim93.bmb.utils.RSAUtils;
 public class LoginService {
 	@Autowired
 	private HttpServletResponse httpServletResponse;
-	
+
 	@Autowired
 	private AccountsRepository accountsRepository;
-	
-	public boolean login(LoginDto loginDto) {
-		Accounts findedAccount = accountsRepository.findByUserId(loginDto.getUserId());
-		
-		if (findedAccount == null) {
+
+	public AccountDto login(LoginDto loginDto) {
+		Accounts foundAccount = accountsRepository.findByUserId(loginDto.getUserId());
+
+		if (foundAccount == null) {
 			httpServletResponse.setStatus(HttpStatus.BAD_REQUEST.value());
-			
-			return false;
+			return null;
 		}
-		
-		/* 
-		 * 임시 코드 
-		 * 일반적인 텍스트로 받은 비밀번호를 암호화해주는 작업
-		 * 
-		 * 추후 삭제 예정
-		 * */
+
 		RSAUtils rsaUtils = RSAUtils.getInstance();
-		String encodedText = rsaUtils.encode(loginDto.getPassword());
-		
-		String decodedText = rsaUtils.getDecodedText(encodedText);
-		
+		String decodedText = rsaUtils.getDecodedText(loginDto.getPassword());
+
 		if (decodedText == null) {
-			httpServletResponse.setStatus(HttpStatus.BAD_REQUEST.value());
-			
-			return false;
+			httpServletResponse.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+			return null;
 		}
-		
-		if (!BCrypt.checkpw(decodedText, findedAccount.getPassword())) {
+
+		if (!BCrypt.checkpw(decodedText, foundAccount.getPassword())) {
 			httpServletResponse.setStatus(HttpStatus.UNAUTHORIZED.value());
-			
-			return false;
+			return null;
 		}
 		
-		return true;
+		return AccountDto.builder()
+			.seq(foundAccount.getSeq())
+			.build();
 	}
-	
-	public String getPublicKey() {
+
+	public PublicKeyDto getPublicKey() {
 		RSAUtils rsaUtils = RSAUtils.getInstance();
-		return rsaUtils.getPublicKey();
+
+		PublicKeyDto publicKey = new PublicKeyDto();
+		publicKey.setKey(rsaUtils.getPublicKey());
+
+		return publicKey;
 	}
 }

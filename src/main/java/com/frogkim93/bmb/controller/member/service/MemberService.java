@@ -13,9 +13,12 @@ import org.springframework.stereotype.Service;
 import com.frogkim93.bmb.dto.member.CreateMemberDto;
 import com.frogkim93.bmb.dto.member.MemberDto;
 import com.frogkim93.bmb.dto.member.UpdateMemberDto;
+import com.frogkim93.bmb.dto.team.MemberWithAvgDto;
 import com.frogkim93.bmb.model.Accounts;
 import com.frogkim93.bmb.model.Members;
+import com.frogkim93.bmb.model.view.VMemberWithLastAvg;
 import com.frogkim93.bmb.repository.MembersRepository;
+import com.frogkim93.bmb.repository.view.VMemberWithLastAvgRepository;
 
 @Service
 public class MemberService {
@@ -24,6 +27,9 @@ public class MemberService {
 
 	@Autowired
 	private MembersRepository membersRepository;
+	
+	@Autowired
+	private VMemberWithLastAvgRepository vMemberWithLastAvgRepository;
 
 	public boolean createMember(CreateMemberDto createMemberDto) {
 		Members entity = createMemberDto.convertToEntity();
@@ -52,6 +58,17 @@ public class MemberService {
 		return memberList;
 	}
 
+	public List<MemberWithAvgDto> getMemberWithAvgListByMaster(int masterSeq) {
+		List<VMemberWithLastAvg> foundList = vMemberWithLastAvgRepository.findByAccount(Accounts.builder().seq(masterSeq).build());
+		List<MemberWithAvgDto> memberList = new ArrayList<MemberWithAvgDto>();
+
+		for (VMemberWithLastAvg vEntity: foundList) {
+			memberList.add(new MemberWithAvgDto(vEntity));
+		}
+
+		return memberList;
+	}
+
 	public boolean updateMember(int memberSeq, UpdateMemberDto updateMemberDto) {
 		Optional<Members> foundMember = membersRepository.findById(memberSeq);
 
@@ -71,15 +88,14 @@ public class MemberService {
 		return true;
 	}
 
-	public boolean deleteMember(int memberSeq) {
-		try {
-			membersRepository.deleteById(memberSeq);
-		} catch (Exception e) {
+	public void deleteMember(int memberSeq) {
+		Optional<Members> foundMember = membersRepository.findById(memberSeq);
+
+		if (foundMember.isEmpty()) {
 			httpServletResponse.setStatus(HttpStatus.BAD_REQUEST.value());
-
-			return false;
+			return;
 		}
-
-		return true;
+		
+		membersRepository.delete(foundMember.get());
 	}
 }
