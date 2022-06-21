@@ -16,11 +16,13 @@ public class MemberDto {
 	private int seq;
 	private String name;
 	private int gender;
-
+	private int avg;
+	
 	@Builder
 	private MemberDto(Members entity) {
 		seq = entity.getSeq();
 		name = entity.getName();
 		gender = entity.getGender().ordinal();
+		avg = entity.getVMember().getAvg() != null? entity.getVMember().getAvg().intValue(): 0;
 	}
 }

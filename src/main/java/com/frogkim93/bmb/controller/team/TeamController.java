@@ -24,8 +24,8 @@ public class TeamController {
 		teamService.createTeam(teamListDto);
 	}
 
-	@GetMapping(value = "/byMaster/{masterSeq}")
-	private List<TeamDto> getTeamByMaster(@PathVariable int masterSeq) {
-		return teamService.getTeamByMaster(masterSeq);
+	@GetMapping(value = "/{masterSeq}")
+	private List<TeamDto> getTeam(@PathVariable int masterSeq) {
+		return teamService.getTeam(masterSeq);
 	}
 }

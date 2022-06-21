@@ -16,11 +16,13 @@ import com.frogkim93.bmb.constants.GameType;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
 @Builder
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity(name = "games")
@@ -29,9 +31,9 @@ public class Games {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int seq;
 	
-	@ManyToOne(targetEntity = Teams.class)
-	@JoinColumn(name = "teamSeq")
-	private Teams team;
+	@ManyToOne(targetEntity = Accounts.class)
+	@JoinColumn(name = "masterSeq")
+	private Accounts account;
 	
 	@Temporal(TemporalType.DATE)
 	@Column(nullable = false)

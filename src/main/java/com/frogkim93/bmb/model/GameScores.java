@@ -10,10 +10,12 @@ import javax.persistence.ManyToOne;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -27,9 +29,12 @@ public class GameScores {
 	@JoinColumn(name = "gameSeq")
 	private Games game;
 	
-	@ManyToOne(targetEntity = TeamMappings.class)
-	@JoinColumn(name = "teamMappingSeq")
-	private TeamMappings teamMapping;
+	@ManyToOne(targetEntity = Members.class)
+	@JoinColumn(name = "memberSeq")
+	private Members member;
+	
+	@Column(nullable = false)
+	private int teamIndex;
 	
 	@Column(nullable = false)
 	private int gameIndex;

@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import com.frogkim93.bmb.constants.GameType;
+import com.frogkim93.bmb.model.Accounts;
+import com.frogkim93.bmb.model.Games;
 import com.frogkim93.bmb.model.TeamMappings;
 import com.frogkim93.bmb.model.Teams;
 
@@ -18,16 +21,15 @@ import lombok.Setter;
 @Getter
 @Setter
 public class RecordDto {
+	private int accountSeq;
 	private Date date;
 	private Boolean isRegularGame;
-	private int teamSeq;
 	private List<TeamDto> teamList;
 	
 	@Builder
 	private RecordDto(Teams teamEntity) {
 		date = new Date();
 		isRegularGame = true;
-		teamSeq = teamEntity.getSeq();
 
 		teamList = new ArrayList<TeamDto>();
 
@@ -39,5 +41,13 @@ public class RecordDto {
 				teamList.add(team);
 			}
 		}
+	}
+	
+	public Games convertToGameEntity() {
+		return Games.builder()
+			.account(Accounts.builder().seq(accountSeq).build())
+			.gameDate(date)
+			.gameType(isRegularGame? GameType.REGULAR: GameType.NOT_REGULAR)
+			.build();
 	}
 }

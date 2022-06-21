@@ -7,8 +7,10 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 
 import com.frogkim93.bmb.constants.Gender;
+import com.frogkim93.bmb.model.view.VMembers;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -36,4 +38,8 @@ public class Members {
 	
 	@Column(nullable = false)
 	private Gender gender;
+	
+	@OneToOne(targetEntity = VMembers.class)
+	@JoinColumn(name = "seq")
+	private VMembers vMember;
 }

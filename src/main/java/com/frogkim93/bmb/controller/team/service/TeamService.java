@@ -65,6 +65,53 @@ public class TeamService {
 			throw new RuntimeException();
 		}
 	}
+	
+	public List<TeamDto> getTeam(int masterSeq) {
+		Teams foundTeam = teamsRepository.findByAccount(Accounts.builder().seq(masterSeq).build());
+		List<TeamDto> teamList = new ArrayList<TeamDto>();
+		
+		for (TeamMappings teamMapping: foundTeam.getTeamMappingList()) {
+			if (teamList.size() == 0) {
+				TeamDto team = TeamDto.builder()
+					.teamIndex(teamMapping.getTeamIndex())
+					.memberList(new ArrayList<MemberDto>())
+					.build();
+				
+				teamList.add(team);
+			}
+			
+			TeamDto team = getTeamByIndex(teamList, teamMapping.getTeamIndex());
+			
+			if (team == null) {
+				team = TeamDto.builder()
+					.teamIndex(teamMapping.getTeamIndex())
+					.memberList(new ArrayList<MemberDto>())
+					.build();
+					
+				teamList.add(team);
+			}
+			
+			MemberDto member = MemberDto.builder()
+				.entity(teamMapping.getMember())
+				.build();
+			
+			team.getMemberList().add(member);
+		}
+		
+		return teamList;
+	}
+	
+	private TeamDto getTeamByIndex(List<TeamDto> teamList, int teamIndex) {
+		TeamDto foundTeam = null;
+		
+		for (TeamDto team: teamList) {
+			if (team.getTeamIndex() == teamIndex) {
+				foundTeam = team;
+			}
+		}
+		
+		return foundTeam;
+	}
 
 	public List<TeamDto> getTeamByMaster(int masterSeq) {
 		Teams foundTeam = teamsRepository.findTop1ByOrderByRegTimeDesc();
@@ -95,20 +142,6 @@ public class TeamService {
 		return teamList;
 	}
 
-	private TeamDto getTeamByIndex(List<TeamDto> teamList, int index) {
-		if (teamList.size() == 0) {
-			return null;
-		}
-		
-		for (TeamDto team: teamList) {
-			if (team.getTeamIndex() == index) {
-				return team;
-			}
-		}
-		
-		return null;
-	}
-	
 	private VMemberWithLastAvg getVMember(int memberSeq, List<VMemberWithLastAvg> list) {
 		for (VMemberWithLastAvg vMember: list) {
 			if (vMember.getSeq() == memberSeq) {

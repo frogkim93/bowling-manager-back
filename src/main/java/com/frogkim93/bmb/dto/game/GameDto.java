@@ -57,7 +57,6 @@ public class GameDto {
 	public Games convertToEntity() {
 		return Games.builder()
 			.seq(seq)
-			.team(Teams.builder().seq(teamSeq).build())
 			.gameDate(gameDate)
 			.gameType(gameType)
 			.build();
@@ -94,7 +93,6 @@ public class GameDto {
 		public GameScores convertToGameScoreEntity(Games gameEntity, int gameIndex) {
 			return GameScores.builder()
 				.game(gameEntity)
-				.teamMapping(TeamMappings.builder().seq(teamMappingSeq).build())
 				.gameIndex(gameIndex)
 				.score(scoreList.get(gameIndex))
 				.build();
